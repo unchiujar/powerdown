@@ -39,20 +39,43 @@ http://interface.khm.de/index.php/lab/experiments/sleep_watchdog_battery/
 
 *****************************************************************/
 
-#ifndef Powerdown_h
-#define Powerdown_h
+#ifndef Atmega328Powerdown_h
+#define Atmega328Powerdown_h
 
 #include "Arduino.h"
+#include "Powerdown.h"
 
-typedef enum { VOLTAGE_3V, VOLTAGE_5V } voltage_t;
-typedef enum { ATMEGA328 } cpu_t;
-
-class Powerdown
+class Atmega328Powerdown: public Powerdown
 {
    public:
-      // Factory method
-      static Powerdown* make(cpu_t cpu, voltage_t voltage);
-      virtual void save(int interval);
+      Atmega328Powerdown(voltage_t voltage);
+      void save(int interval);
+      boolean awake();
+   private:
+      void calculateWaitPeriods5V(unsigned long sleep);
+      void calculateWaitPeriods3V(unsigned long sleep);
+      void sleep3V(unsigned long sleep);
+      void sleep5V(unsigned long sleep);
+      void doSleep();
+      void system_sleep();
+      void setup_watchdog(int ii);
+      voltage_t _voltage;
+      /*
+       From ATMega328 Watchdog specs
+
+       Number of WDT     Typical Time-out Typical Time-out
+       WDP2 WDP1 WDP0 Oscillator Cycles    at VCC = 3.0V    at VCC = 5.0V
+       0    0    0    0        16K (16,384)         17.1 ms          16.3 ms
+       1    0    0    1        32K (32,768)         34.3 ms          32.5 ms
+       2    0    1    0        64K (65,536)         68.5 ms           65 ms
+       3    0    1    1       128K (131,072)         0.14 s           0.13 s
+       4    1    0    0       256K (262,144)         0.27 s           0.26 s
+       5    1    0    1       512K (524,288)         0.55 s           0.52 s
+       6    1    1    0     1,024K (1,048,576)       1.1 s            1.0 s
+       7    1    1    1     2,048K (2,097,152)       2.2 s            2.1 s
+      */
+      unsigned long wait_periods[8];
+
 };
 
 #endif
