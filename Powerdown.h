@@ -43,16 +43,15 @@ http://interface.khm.de/index.php/lab/experiments/sleep_watchdog_battery/
 #define Powerdown_h
 
 #include "Arduino.h"
+typedef enum { VOLTAGE_3V, VOLTAGE_5V } voltage_t;
+typedef enum { ATMEGA368 } cpu_t;
 
 class Powerdown
 {
    public:
-      Powerdown(int cpu, int voltage);
+      Powerdown(cpu_t cpu, voltage_t voltage);
       void save(int interval);
       boolean awake();
-      const static int ATMEGA368 = 0;
-      const static int POWER_3V = 0;
-      const static int POWER_5V = 1;
    private:
       void calculateWaitPeriods5V(unsigned long sleep);
       void calculateWaitPeriods3V(unsigned long sleep);
@@ -61,8 +60,8 @@ class Powerdown
       void doSleep();
       void system_sleep();
       void setup_watchdog(int ii);
-      int _cpu;
-      int _voltage;
+      cpu_t _cpu;
+      voltage_t _voltage;
       /*
        From ATMega328 Watchdog specs
 
